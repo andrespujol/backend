@@ -2,7 +2,7 @@ const express = require ('express')
 const app = express ()
 const fs = require ('fs');
 const path = require ('path')
-const PORT = 8080
+const PORT = 3000
 
 let visitas = 0
 
@@ -23,6 +23,66 @@ class Contenedor {
         let result = data.filter( producto => producto.id === random)
         return result
     }
+    async save(producto) {
+        let newId = 1
+        let objeto = {}
+        
+        let data = await this.show()
+        let archivo = JSON.parse(JSON.stringify(data))
+        
+        if(!data) {
+            producto.id = newId
+            objeto = [producto]
+        } else {
+            producto.id = archivo[archivo.length - 1].id + 1
+            objeto = producto
+        }
+        archivo.push(objeto)
+        
+        await this.write(archivo, "Agregado!")
+    }
+    async getById(num) {
+        let data = await this.show()
+        let object = JSON.parse(JSON.stringify(data))
+        console.log(object)
+        let result = object.filter( producto => producto.id == num)
+        console.log(result)
+        
+    }
+    
+    async getAll() {
+        let data = await this.show()
+        let object = JSON.parse(JSON.stringify(data))
+        
+        return object
+    }
+    
+    async deleteById(num) {
+        let data = await this.show()
+        let object = JSON.parse(JSON.stringify(data))
+        let producto = object.find( producto => producto.id == num)
+        
+        if(producto) {
+            let index = object.indexOf(producto)
+            console.log(index)
+            object.splice(index, 1)
+            await this.write(object, `producto con ID: ${num} eliminado`)
+        } else {
+            console.log(`no existe el producto con ID: ${num} `)
+        }
+    }
+    
+    async deleteAll() {
+        let array = []
+        await this.write(array, "Se eliminaron todos los productos")
+    }
+    async showRandom() {
+    let data = await this.show()
+    let object = JSON.parse(JSON.stringify(data))
+    let random = Math.floor((Math.random() * 5) + 1); 
+    let result = object.filter( producto => producto.id == random)
+    return result
+}
 }
 let container = new Contenedor('./productos.json')
 
@@ -59,3 +119,5 @@ async function consultarDesafio() {
 const server = app.listen(PORT, () => {
     console.log(`Corriendo en el servidor ${server.address().port}`);
 })
+
+module.exports = { Contenedor }
