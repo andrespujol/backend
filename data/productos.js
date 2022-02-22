@@ -1,4 +1,4 @@
-[
+const products = [
   {
     "id": 1,
     "title": "Remera cuello redondo",
@@ -36,3 +36,7 @@
     "description": "Blusa escote en V"
   }
 ]
+
+module.exports = {
+  products
+};
